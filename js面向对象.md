@@ -79,11 +79,11 @@ struct Person{
     int age;
     string name;
     struct prototype{
-        *constructor; //构造函数
+        constructor; //构造函数，指向本身
         *method; //自定义方法
         __proto__; //__proto__属性
     }* __proto__;
-}
+}*constructor
 
 ```
 3、构造器
@@ -103,6 +103,89 @@ console.log(cat.constructor.name)
 //Animal
 ```
 4、原型式继承
+只介绍几种常用方式
+1、拷贝继承
+
+```
+function Father(name){
+    this.name = name;
+}
+Father.prototype.say = function(){
+    console.log("i am father");
+}
+function Son(name){
+    Father.call(this,name);
+}
+for(var each in Father.prototype){
+    Son.prototype[each] = Father.prototype[each];
+}
+//缺点，循环 很慢，而且会有无法枚举的类型不能继承
+
+```
+2、组合继承
+
+```
+function Father(name){
+    this.name = name;
+}
+Father.prototype.say = function(){
+    console.log("i am father");
+}
+function Son(name){
+    Father.call(this,name);
+}
+Son.prototype = new Father();
+//还原Son的构造函数
+Son.prototype.constructor = Son;
+```
+3、道格拉斯推荐的一种，寄生组合继承
+
+```
+function Father(name){
+    this.name = name;
+}
+Father.prototype.say = function(){
+    console.log("i am father");
+}
+function Son(name){
+    Father.call(this,name);
+}
+(function(){
+    function f(){};
+    f.prototype = Father.prototype;
+    Son.prototype = new f();
+})
+
+
+```
+问题，如何判断一个变量是数组对象
+instanceof和constructor方法判断存在局限性，只能判断从Array派生出的数组，如果一个构造器继承Array后，再进行派生，无法判断。
+ES之后新增方法
+Array.isArray(obj);
+ES5之前
+Object.prototype.toString.call(obj) === "[Object Array]";
+
+ES6之后的面向对象和继承，通过class，super和constructor来实现。
+
+```
+class Father{
+    constructor(fullName){
+        this.fullName = fullName;
+    }
+    say(){
+        console.log("hello");
+    }
+}
+class Son extends Father{
+    constructor(fullName){
+        super(fullName);
+    }
+    say(){
+        console.log("fine");
+    }
+}
+```
+至此，js面向对象部分基本结束
 
 
 
